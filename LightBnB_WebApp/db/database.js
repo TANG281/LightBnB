@@ -117,7 +117,7 @@ const getAllProperties = (options, limit) => {
   if (conditionString.length > 0) {
     queryString += ` WHERE ${conditionString} GROUP BY properties.id`;
   } else {
-    queryString += `GROUP BY properties.id`
+    queryString += `GROUP BY properties.id`;
   }
 
   if (options.minimum_rating) {
@@ -126,8 +126,8 @@ const getAllProperties = (options, limit) => {
   }
 
   queryString += havingString + ` ORDER BY cost_per_night LIMIT $1;`;
-console.log(queryString);
-console.log(queryParams);
+  console.log(queryString);
+  console.log(queryParams);
   return pool
     .query(queryString, queryParams)
     .then((data) => {
@@ -138,16 +138,21 @@ console.log(queryParams);
     });
 };
 
-/**
- * Add a property to the database
- * @param {{}} property An object containing all of the property details.
- * @return {Promise<{}>} A promise to the property.
- */
-const addProperty = function(property) {
-  const propertyId = Object.keys(properties).length + 1;
-  property.id = propertyId;
-  properties[propertyId] = property;
-  return Promise.resolve(property);
+const addProperty = (property) => {
+  const queryString = `
+  INSERT INTO properties (owner_id, title, description, thumbnail_photo_url, cover_photo_url, cost_per_night, parking_spaces, number_of_bathrooms, number_of_bedrooms, country, street, city, province, post_code)
+  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+  RETURNING *;
+  `;
+  return pool
+    .query(queryString, [property.owner_id, property.title, property.description, property.thumbnail_photo_url, property.cover_photo_url, property.cost_per_night, property.parking_spaces, property.number_of_bathrooms, property.number_of_bedrooms, property.country, property.street, property.city, property.province, property.post_code])
+    .then((data) => {
+      console.log(data.rows[0]);
+      return data.rows[0];
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
 };
 
 module.exports = {
