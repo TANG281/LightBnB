@@ -42,6 +42,7 @@ const getUserWithId = (id) => {
     });
 };
 
+// Create new user
 const addUser = (inputs) => {
   const queryString = `
   INSERT INTO users (name, email, password)
@@ -60,6 +61,7 @@ const addUser = (inputs) => {
 
 /// Reservations
 
+// Retrieve all reservation for an user
 const getAllReservations = (guest_id, limit = 10) => {
   const queryString = `
   SELECT * FROM reservations
@@ -79,6 +81,7 @@ const getAllReservations = (guest_id, limit = 10) => {
 
 /// Properties
 
+// Retrive properties with/without filter
 const getAllProperties = (options, limit) => {
   let conditionString = '';
   let havingString = '';
@@ -89,6 +92,7 @@ const getAllProperties = (options, limit) => {
   LEFT JOIN property_reviews ON properties.id = property_id
   `;
 
+  // Check if there is a WHERE condition - when filter for city and min/max prices are used
   if (options.city) {
     if (queryParams.length > 1) {
       conditionString += ` AND `;
@@ -120,6 +124,7 @@ const getAllProperties = (options, limit) => {
     queryString += `GROUP BY properties.id`;
   }
 
+  // Check if there is a HAVING condition - when filter for minimum rating is used
   if (options.minimum_rating) {
     queryParams.push(`${options.minimum_rating}`);
     havingString += ` HAVING avg(property_reviews.rating) >= $${queryParams.length}`;
@@ -138,6 +143,7 @@ const getAllProperties = (options, limit) => {
     });
 };
 
+// Add new listing to db
 const addProperty = (property) => {
   const queryString = `
   INSERT INTO properties (owner_id, title, description, thumbnail_photo_url, cover_photo_url, cost_per_night, parking_spaces, number_of_bathrooms, number_of_bedrooms, country, street, city, province, post_code)
